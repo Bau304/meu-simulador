@@ -15,7 +15,7 @@ st.markdown("""
 try:
     st.image("sua_logo.png", width=220)
 except:
-    st.markdown("<h1 style='text-align: center; color: #00BFFF;'>Fabiano Baú</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #00BFFF;'>Fabiano Baú Creci 16.356</h1>", unsafe_allow_html=True)
 
 st.markdown("<h2 style='text-align: center; margin-bottom: 30px;'>Simulador de Negociação</h2>", unsafe_allow_html=True)
 
