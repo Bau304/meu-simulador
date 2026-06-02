@@ -3,7 +3,7 @@ import streamlit as st
 # Configura a página para o modo escuro/centralizado
 st.set_page_config(page_title="Simulador de Negociação", page_icon="🏢", layout="centered")
 
-# CSS para forçar o fundo escuro e textos claros
+# CSS para forçar o fundo escuro e tirar margens desnecessárias
 st.markdown("""
     <style>
     .main { background-color: #111111; color: white; }
@@ -59,10 +59,11 @@ with col_flx4:
 # Validação matemática do fechamento do fluxo
 total_porcentagem = pct_entrada + pct_mensais + pct_intercaladas + pct_entrega
 
+# Se a porcentagem estiver errada, exibe o aviso em VERMELHO
 if total_porcentagem == 100.0:
     st.markdown(f"<p style='color: #00BFFF; font-weight: bold;'>✅ Fechamento do fluxo perfeito: {total_porcentagem}%</p>", unsafe_allow_html=True)
 else:
-    st.markdown(f"<p style='color: #E74C3C; font-weight: bold;'>❌ Erro no fechamento: {total_porcentagem}% (Precisa somar exatamente 100%)</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: #FF0000; font-weight: bold;'>❌ Erro no fechamento: {total_porcentagem}% (Precisa somar exatamente 100%)</p>", unsafe_allow_html=True)
 
 # --- 5. CÁLCULOS MATEMÁTICOS DOS VALORES ---
 valor_entrada_total = preco_total * (pct_entrada / 100)
@@ -74,7 +75,7 @@ valor_un_entrada = valor_entrada_total / qtd_entrada if qtd_entrada > 0 else 0
 valor_un_mensal = valor_mensais_total / qtd_mensais if qtd_mensais > 0 else 0
 valor_un_intercalada = valor_intercaladas_total / qtd_intercaladas if qtd_intercaladas > 0 else 0
 
-# --- 6. PAINEL: RESULTADO FINANCEIRO (LIMPO E EM AZUL) ---
+# --- 6. PAINEL: RESULTADO FINANCEIRO (CÓDIGO REESCRITO DO ZERO) ---
 st.markdown("### 💰 Resultado Financeiro")
 col_res1, col_res2 = st.columns(2)
 
@@ -82,38 +83,28 @@ def formata_real(val):
     return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 with col_res1:
-    st.markdown(f"""
-    <div style='margin-bottom: 25px;'>
-        <b style='font-size: 16px; color: white;'>ENTRADA ({pct_entrada}%)</b><br>
-        <span style='font-size: 28px; font-weight: bold; color: #00BFFF;'>{formata_real(valor_entrada_total)}</span><br>
-        <span style='font-size: 14px; color: #aaaaaa;'>Fluxo: {qtd_entrada}x de {formata_real(valor_un_entrada)}</span>
-    </div>
-    """, unsafe_allow_html=True)
+    # Bloco Entrada
+    st.markdown(f"**ENTRADA ({pct_entrada}%)**")
+    st.markdown(f"<h3 style='color: #00BFFF; margin-top:0px; margin-bottom:0px;'>{formata_real(valor_entrada_total)}</h3>", unsafe_allow_html=True)
+    st.markdown(f"Fluxo: {qtd_entrada}x de {formata_real(valor_un_entrada)}")
+    st.markdown("---")
     
-    st.markdown(f"""
-    <div>
-        <b style='font-size: 16px; color: white;'>{tipo_intercalada.upper()} ({pct_intercaladas}%)</b><br>
-        <span style='font-size: 28px; font-weight: bold; color: #00BFFF;'>{formata_real(valor_intercaladas_total)}</span><br>
-        <span style='font-size: 14px; color: #aaaaaa;'>Fluxo: {qtd_intercaladas}x de {formata_real(valor_un_intercalada)}</span>
-    </div>
-    """, unsafe_allow_html=True)
+    # Bloco Intercaladas
+    st.markdown(f"**{tipo_intercalada.upper()} ({pct_intercaladas}%)**")
+    st.markdown(f"<h3 style='color: #00BFFF; margin-top:0px; margin-bottom:0px;'>{formata_real(valor_intercaladas_total)}</h3>", unsafe_allow_html=True)
+    st.markdown(f"Fluxo: {qtd_intercaladas}x de {formata_real(valor_un_intercalada)}")
 
 with col_res2:
-    st.markdown(f"""
-    <div style='margin-bottom: 25px;'>
-        <b style='font-size: 16px; color: white;'>MENSAIS ({pct_mensais}%)</b><br>
-        <span style='font-size: 28px; font-weight: bold; color: #00BFFF;'>{formata_real(valor_mensais_total)}</span><br>
-        <span style='font-size: 14px; color: #aaaaaa;'>Fluxo: {qtd_mensais}x de {formata_real(valor_un_mensal)}</span>
-    </div>
-    """, unsafe_allow_html=True)
+    # Bloco Mensais
+    st.markdown(f"**MENSAIS ({pct_mensais}%)**")
+    st.markdown(f"<h3 style='color: #00BFFF; margin-top:0px; margin-bottom:0px;'>{formata_real(valor_mensais_total)}</h3>", unsafe_allow_html=True)
+    st.markdown(f"Fluxo: {qtd_mensais}x de {formata_real(valor_un_mensal)}")
+    st.markdown("---")
     
-    st.markdown(f"""
-    <div>
-        <b style='font-size: 16px; color: white;'>ENTREGA / CHAVES ({pct_entrega}%)</b><br>
-        <span style='font-size: 28px; font-weight: bold; color: #00BFFF;'>{formata_real(valor_entrega_total)}</span><br>
-        <span style='font-size: 14px; color: #aaaaaa;'>Parcela única na entrega das chaves</span>
-    </div>
-    """, unsafe_allow_html=True)
+    # Bloco Chaves
+    st.markdown(f"**ENTREGA / CHAVES ({pct_entrega}%)**")
+    st.markdown(f"<h3 style='color: #00BFFF; margin-top:0px; margin-bottom:0px;'>{formata_real(valor_entrega_total)}</h3>", unsafe_allow_html=True)
+    st.markdown("Parcela única na entrega das chaves")
 
 # --- 7. GERADOR DE RELATÓRIO PARA WHATSAPP ---
 st.markdown("<br>", unsafe_allow_html=True)
@@ -133,4 +124,3 @@ texto_relatorio = f"""*PROPOSTA COMERCIAL DE NEGOCIAÇÃO IMOBILIÁRIA*
 _Proposta gerada para análise técnica e aprovação._"""
 
 st.text_area("📋 Relatório pronto para copiar e enviar no WhatsApp:", texto_relatorio, height=240)
-
