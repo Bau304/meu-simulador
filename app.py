@@ -1,0 +1,126 @@
+import streamlit as st
+
+# Configura a página para o modo escuro/centralizado
+st.set_page_config(page_title="Simulador de Negociação", page_icon="🏢", layout="centered")
+
+# Estilização CSS para deixar o visual escuro e elegante como o da LAVIE
+st.markdown("""
+    <style>
+    .main { background-color: #333333; color: white; }
+    div[data-testid="stBlock"] {
+        background-color: #222222;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #444444;
+    }
+    h1, h2, h3, p, label { color: white !important; }
+    .stButton>button {
+        background-color: #E67E22;
+        color: white;
+        border-radius: 5px;
+        width: 100%;
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- 1. LOGO E TÍTULO ---
+# Tenta carregar a sua logo. Se não achar, coloca o título em texto estruturado
+try:
+    st.image("sua_logo.png", width=220)
+except:
+    st.markdown("<h1 style='text-align: center; color: #E67E22;'>[ SUA MARCA ]</h1>", unsafe_allow_html=True)
+
+st.markdown("<h2 style='text-align: center; margin-bottom: 30px;'>Simulador de Negociação</h2>", unsafe_allow_html=True)
+
+# --- 2. PAINEL: DADOS DA UNIDADE E CLIENTE ---
+st.markdown("### 🏢 Dados do Atendimento")
+col_cli1, col_cli2 = st.columns(2)
+
+with col_cli1:
+    nome_cliente = st.text_input("Nome do Cliente", value="João Silva")
+    nome_empreendimento = st.text_input("Empreendimento", value="Burj Lavie")
+
+with col_cli2:
+    unidade = st.text_input("Unidade / Sala", value="101")
+    preco_total = st.number_input("Preço Total (R$)", min_value=0.0, value=500000.0, step=50000.0)
+
+# --- 3. PAINEL: CONFIGURAÇÃO DE PRAZOS ---
+st.markdown("### 📅 Configuração de Prazos")
+col_prz1, col_prz2 = st.columns(2)
+
+with col_prz1:
+    qtd_entrada = st.number_input("Nº Parc. Entrada", min_value=1, value=1)
+    qtd_mensais = st.number_input("Nº Parc. Mensais", min_value=1, value=36)
+
+with col_prz2:
+    tipo_intercalada = st.selectbox("Tipo", ["Semestrais", "Anuais"])
+    qtd_intercaladas = st.number_input("Nº Parc. Intercaladas", min_value=0, value=6)
+
+# --- 4. PAINEL: DISTRIBUIÇÃO DO FLUXO (%) ---
+st.markdown("### 📊 Distribuição do Fluxo (%)")
+col_flx1, col_flx2, col_flx3, col_flx4 = st.columns(4)
+
+with col_flx1:
+    pct_entrada = st.number_input("Entrada (%)", min_value=0.0, max_value=100.0, value=20.0, step=5.0)
+with col_flx2:
+    pct_mensais = st.number_input("Mensais (%)", min_value=0.0, max_value=100.0, value=40.0, step=5.0)
+with col_flx3:
+    pct_intercaladas = st.number_input("Intercaladas (%)", min_value=0.0, max_value=100.0, value=20.0, step=5.0)
+with col_flx4:
+    pct_entrega = st.number_input("Entrega (%)", min_value=0.0, max_value=100.0, value=20.0, step=5.0)
+
+# Validação matemática do fechamento do fluxo
+total_porcentagem = pct_entrada + pct_mensais + pct_intercaladas + pct_entrega
+
+if total_porcentagem == 100.0:
+    st.markdown(f"<p style='color: #2ECC71; font-weight: bold;'>✅ Fechamento: {total_porcentagem}%</p>", unsafe_allow_html=True)
+else:
+    st.markdown(f"<p style='color: #E74C3C; font-weight: bold;'>❌ Fechamento: {total_porcentagem}% (Ajuste para somar 100%)</p>", unsafe_allow_html=True)
+
+# --- 5. CÁLCULOS MATEMÁTICOS DOS VALORES ---
+valor_entrada_total = preco_total * (pct_entrada / 100)
+valor_mensais_total = preco_total * (pct_mensais / 100)
+valor_intercaladas_total = preco_total * (pct_intercaladas / 100)
+valor_entrega_total = preco_total * (pct_entrega / 100)
+
+valor_un_entrada = valor_entrada_total / qtd_entrada if qtd_entrada > 0 else 0
+valor_un_mensal = valor_mensais_total / qtd_mensais if qtd_mensais > 0 else 0
+valor_un_intercalada = valor_intercaladas_total / qtd_intercaladas if qtd_intercaladas > 0 else 0
+
+# --- 6. PAINEL: RESULTADO FINANCEIRO ---
+st.markdown("### 💰 Resultado Financeiro")
+col_res1, col_res2 = st.columns(2)
+
+def formata_real(val):
+    return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+with col_res1:
+    st.markdown(f"**ENTRADA ({pct_entrada}%)**<br><span style='font-size: 24px; font-weight: bold; color: #E67E22;'>{formata_real(valor_entrada_total)}</span><br><span style='font-size: 14px; color: #aaa;'>Ato / Sinal: {qtd_entrada}x de {formata_real(valor_un_entrada)}</span>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f"**{tipo_intercalada.upper()} ({pct_intercaladas}%)**<br><span style='font-size: 24px; font-weight: bold; color: white;'>{formata_real(valor_intercaladas_total)}</span><br><span style='font-size: 14px; color: #aaa;'>Total de {qtd_intercaladas}x de {formata_real(valor_un_intercalada)}</span>", unsafe_allow_html=True)
+
+with col_res2:
+    st.markdown(f"**MENSAIS ({pct_mensais}%)**<br><span style='font-size: 24px; font-weight: bold; color: white;'>{formata_real(valor_mensais_total)}</span><br><span style='font-size: 14px; color: #aaa;'>Total de {qtd_mensais}x de {formata_real(valor_un_mensal)}</span>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f"**ENTREGA / CHAVES ({pct_entrega}%)**<br><span style='font-size: 24px; font-weight: bold; color: white;'>{formata_real(valor_entrega_total)}</span><br><span style='font-size: 14px; color: #aaa;'>Parcela única nas Chaves</span>", unsafe_allow_html=True)
+
+# --- 7. GERADOR DE RELATÓRIO PARA WHATSAPP ---
+st.markdown("<br>", unsafe_allow_html=True)
+texto_relatorio = f"""*PROPOSTA COMERCIAL DE NEGOCIAÇÃO IMOBILIÁRIA*
+
+🏢 *Empreendimento:* {nome_empreendimento}
+🔑 *Unidade:* {unidade}
+👤 *Cliente:* {nome_cliente}
+💵 *Preço Total:* {formata_real(preco_total)}
+
+*Fluxo de Pagamento Sugerido:*
+• Entrada ({pct_entrada}%): {qtd_entrada}x de {formata_real(valor_un_entrada)} (Total: {formata_real(valor_entrada_total)})
+• Mensais ({pct_mensais}%): {qtd_mensais}x de {formata_real(valor_un_mensal)}
+• {tipo_intercalada} ({pct_intercaladas}%): {qtd_intercaladas}x de {formata_real(valor_un_intercalada)}
+• Chaves ({pct_entrega}%): Parcela única de {formata_real(valor_entrega_total)}
+
+_Proposta gerada para análise técnica e aprovação._"""
+
+st.text_area("📋 Relatório pronto para copiar e enviar no WhatsApp:", texto_relatorio, height=220)
